@@ -6,8 +6,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
 import com.google.gson.Gson;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -33,50 +31,40 @@ public abstract class MetaMqttService extends Service {
     private MqttClient mqttClient;
     private MqttConnectOptions options;
     private ScheduledExecutorService scheduler;
-//    // Service内部回调
-//    private MetaMqttCallBack mCallBack;
 
     private String serverUrl = "";
-    private String clientId = "";
     private String username = "";
     private String password = "";
+    private String clientId = "";
+    private String topic = "";
     private Integer timeout = 10;
     private Integer beatTime = 20;
-    private String topic = "";
     private Integer reConnectTime = 10;
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         // 部分信息
-        serverUrl = intent.getStringExtra("serverUrl");
-        clientId = intent.getStringExtra("clientId");
-        username = intent.getStringExtra("username");
-        password = intent.getStringExtra("password");
-        //topic = intent.getStringExtra("topic");
+        serverUrl = intent.getStringExtra(MetaMqttPushClient.serverAddress);
+        username = intent.getStringExtra(MetaMqttPushClient.userName);
+        password = intent.getStringExtra(MetaMqttPushClient.password);
+        clientId = intent.getStringExtra(MetaMqttPushClient.clientId);
         topic = "push/message/"+clientId+"/inbox";
-        //timeout = intent.getIntExtra("timeout", 10);
-        //beatTime = intent.getIntExtra("beatTime", 20);
-        //reConnectTime = intent.getIntExtra("reConnectTime", 10);
         return new MsgBinder();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // 部分信息
-        serverUrl = intent.getStringExtra("serverUrl");
-        clientId = intent.getStringExtra("clientId");
-        username = intent.getStringExtra("username");
-        password = intent.getStringExtra("password");
-        //topic = intent.getStringExtra("topic");
+        serverUrl = intent.getStringExtra(MetaMqttPushClient.serverAddress);
+        username = intent.getStringExtra(MetaMqttPushClient.userName);
+        password = intent.getStringExtra(MetaMqttPushClient.password);
+        clientId = intent.getStringExtra(MetaMqttPushClient.clientId);
         topic = "push/message/"+clientId+"/inbox";
-        //timeout = intent.getIntExtra("timeout", 10);
-        //beatTime = intent.getIntExtra("beatTime", 20);
-        //reConnectTime = intent.getIntExtra("reConnectTime", 10);
-        // 连接mqtt服务
-        scheduler = Executors.newSingleThreadScheduledExecutor();
-        // 延迟执行连接到mqtt，因为callback还没准备好
-        scheduler.schedule(this::ToConnectMqtt, 1000, TimeUnit.MICROSECONDS);
+//        // 连接mqtt服务
+//        scheduler = Executors.newSingleThreadScheduledExecutor();
+//        // 延迟执行连接到mqtt，因为callback还没准备好
+//        scheduler.schedule(this::ToConnectMqtt, 500, TimeUnit.MICROSECONDS);
+        ToConnectMqtt();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -108,9 +96,13 @@ public abstract class MetaMqttService extends Service {
 
 
     private void ToConnectMqtt() {
-        Log.e(TAG, "ToConnect");
         try {
             // 创建mqttClient
+            if(mqttClient != null)
+            {
+                Log.e(TAG, "Client不为空");
+                return;
+            }
             mqttClient = new MqttClient(serverUrl, clientId, new MemoryPersistence());
             // 初始化配置
             options = new MqttConnectOptions();
@@ -140,14 +132,15 @@ public abstract class MetaMqttService extends Service {
                     //message.getId()
                     //message.getPayload();
                     //message.toString();
-                    Log.e(TAG, "收到MQTT消息" + message.toString());
+                    Log.d(TAG, "收到MQTT消息" + message.toString());
                     // mCallBack.messageArrived(arriveTopic, message);
                     try {
                         MetaMqttPushDataMsg msg = new Gson().fromJson(message.toString(), MetaMqttPushDataMsg.class);
                         if(msg.getType() == 0)
                         {
                             onPassThroughMessageReceived(new MetaMqttPushDataMsg());
-                        }else if(msg.getType() == 1){
+                        }
+                        else if(msg.getType() == 1){
                             //TYPE_MSG_NOTIFICATION
                             onPushMessageReceived(new MetaMqttPushDataMsg());
                         }
@@ -162,15 +155,20 @@ public abstract class MetaMqttService extends Service {
                     pushComplete();
                 }
             });
+//            if (mqttClient.isConnected())
+//            {
+//                mqttClient.disconnect();
+//            }
             // 连接mqtt
             mqttClient.connect(options);
-            // 订阅
-            mqttClient.subscribe(topic, 1);
-            Log.e(TAG, "连接MQTT成功");
-            // 连接成功后将client返回，方便activity层面可以发消息
-            //mCallBack.connectSuccess(mqttClient);
             // 连接成功停止重连机制
             stopConnectMachine();
+            // 订阅
+            mqttClient.subscribe(topic, 1);
+            Log.d(TAG, "连接MQTT成功");
+            // 连接成功后将client返回，方便activity层面可以发消息
+            //mCallBack.connectSuccess(mqttClient);
+
         } catch (MqttException e) {
             e.printStackTrace();
             Log.e(TAG, "connect failed" + e.toString());
@@ -181,9 +179,6 @@ public abstract class MetaMqttService extends Service {
         catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "connect failed" + e.toString());
-            //mCallBack.connectFailed(e);
-            // 开启重连机制
-            // startConnectMachine();
         }
     }
 
@@ -200,7 +195,7 @@ public abstract class MetaMqttService extends Service {
                         mqttClient.connect(options);
                         mqttClient.subscribe(topic);
                         // 连接成功
-                        Log.e(TAG, "重连MQTT成功");
+                        Log.d(TAG, "重连MQTT成功");
                         //mCallBack.reConnectSuccess();
                         stopConnectMachine();
                     } catch (Exception e) {
@@ -210,7 +205,8 @@ public abstract class MetaMqttService extends Service {
                         //mCallBack.reConnectFailed();
                     }
                 } else {
-                    Log.e(TAG, "检测MQTT正常");
+                    Log.d(TAG, "检测MQTT正常");
+                    stopConnectMachine();
                 }
             } else {
                 Log.e(TAG, "Client为空");

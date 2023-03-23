@@ -25,11 +25,12 @@ class MyApplication : Application() {
         });
         MixPushClient.getInstance().setPushReceiver(MyMixPushReceiver())
         MixPushClient.getInstance().setPassThroughReceiver(MyPassThroughReceiver())
-        MixPushClient.getInstance().register(this, MiPushProvider.MI, MqttPushProvider.MQTT)
-        MixPushClient.getInstance().getRegisterId(this, object : GetRegisterIdCallback() {
-            override fun callback(platform: MixPushPlatform?) {
-                Log.e("GetRegisterIdCallback", "notification $platform")
-            }
-        })
+        //MixPushClient.getInstance().register(this, MiPushProvider.MI, MqttPushProvider.MQTT)
+        MixPushClient.getInstance().register(this, MqttPushProvider.MQTT, MqttPushProvider.MQTT)
+//        MixPushClient.getInstance().getRegisterId(this, object : GetRegisterIdCallback() {
+//            override fun callback(platform: MixPushPlatform?) {
+//                Log.e("GetRegisterIdCallback", "notification $platform")
+//            }
+//        })
     }
 }

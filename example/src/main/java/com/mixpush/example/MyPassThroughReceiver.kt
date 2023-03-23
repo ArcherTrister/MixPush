@@ -1,6 +1,7 @@
 package com.mixpush.example
 
 import android.content.Context
+import android.util.Log
 import com.mixpush.core.MixPushMessage
 import com.mixpush.core.MixPushPassThroughReceiver
 import com.mixpush.core.MixPushPlatform
@@ -12,5 +13,6 @@ class MyPassThroughReceiver : MixPushPassThroughReceiver {
 
     override fun onReceiveMessage(context: Context?, message: MixPushMessage?) {
         TODO("Not yet implemented")
+        Log.e("MyPassThroughReceiver", "$message");
     }
 }

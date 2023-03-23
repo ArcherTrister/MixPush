@@ -8,15 +8,25 @@ import android.text.TextUtils;
 import java.util.UUID;
 
 public class MetaMqttPushClient {
+    public static final String serverAddress = "serverAddress";
+    public static final String userName = "userName";
+    public static final String password = "password";
+    public static final String clientId = "clientId";
+    private static final String editKey = "mixPushClientId";
+    private static final String intentAction = "com.mixpush.mqtt.push.action.MESSAGING_EVENT";
     private static MetaMqttPushClient INSTANCE;
     /**
      * 上下文
      */
     private Context mContext;
     /**
+     * MQTT userName
+     */
+    private String mAppId;
+    /**
      * MQTT 客户端ID
      */
-    private String clientId;
+    private String mClientId;
 
     /**
      * MetaMqttPushClient
@@ -41,15 +51,17 @@ public class MetaMqttPushClient {
             throw new RuntimeException("serverUrl appId appSecret 不能为空");
         }
         mContext = context;
-        clientId = encrypt(appId +"_"+ getUUId(context), new int[]{3, 5, 7}) ;
+        mAppId = appId;
+        mClientId = getClientId(context);
         //开启MQTT服务
         Intent serviceIntent = new Intent();
-        serviceIntent.setAction("com.mixpush.mqtt.push.action.MESSAGING_EVENT");
+        serviceIntent.setAction(intentAction);
+        // serviceIntent.addCategory();
         serviceIntent.setPackage(context.getPackageName());
-        serviceIntent.putExtra("serverUrl", serverUrl);
-        serviceIntent.putExtra("username", appId);
-        serviceIntent.putExtra("password", appSecret);
-        serviceIntent.putExtra("clientId", clientId);
+        serviceIntent.putExtra(serverAddress, serverUrl);
+        serviceIntent.putExtra(userName, appId);
+        serviceIntent.putExtra(password, appSecret);
+        serviceIntent.putExtra(clientId, mClientId);
         //mContext.bindService(serviceIntent, mqttServiceConnect, BIND_AUTO_CREATE);
         context.startService(serviceIntent);
     }
@@ -61,7 +73,7 @@ public class MetaMqttPushClient {
 
     public String getPushToken()
     {
-        return clientId;
+        return mClientId;
     }
 
     public void deletePushToken(Context context, MetaMqttPushCallback callback)
@@ -70,9 +82,9 @@ public class MetaMqttPushClient {
             callback.onFailure(0, "上下文为空");
         }else{
             try {
-                SharedPreferences preferences = context.getSharedPreferences("mixpush", Context.MODE_PRIVATE);
+                SharedPreferences preferences = context.getSharedPreferences(this.mAppId, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
-                preferences.edit().remove("MixPushClientId").apply();
+                preferences.edit().remove(editKey).apply();
                 editor.commit();
                 callback.onSuccess();
             }catch (Exception ex){
@@ -83,78 +95,39 @@ public class MetaMqttPushClient {
 
     public void close()
     {
-        Intent serviceIntent = new Intent(mContext, MetaMqttService.class);
+        Intent serviceIntent = new Intent();
+        serviceIntent.setAction(intentAction);
+        // serviceIntent.addCategory();
+        serviceIntent.setPackage(mContext.getPackageName());
         //mContext.unbindService(mqttServiceConnect);
         mContext.stopService(serviceIntent);
     }
 
-    private static String getUUId(Context context) {
-        String uuid = getUuidFromSharedPreferences(context);
-        if (TextUtils.isEmpty(uuid)) {
-            uuid = UUID.randomUUID().toString();
-            saveUuidToSharedPreferences(context, uuid);
+    private String getClientId(Context context) {
+        String clientId = getClientIdFromSharedPreferences(context);
+        if (TextUtils.isEmpty(clientId)) {
+            String uuid = UUID.randomUUID().toString().replaceAll("-","");
+            clientId = mAppId + "_" + uuid;
+            saveClientIdToSharedPreferences(context, clientId);
         }
-        return uuid;
+        return clientId;
     }
 
-    private static void saveUuidToSharedPreferences(Context context, String uuid) {
+    private void saveClientIdToSharedPreferences(Context context, String clientId) {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = context.getSharedPreferences("mixpush", Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(this.mAppId, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("MixPushClientId", uuid).apply();
+        editor.putString(editKey, clientId).apply();
         editor.commit();
     }
 
-    private static String getUuidFromSharedPreferences(Context context) {
+    private String getClientIdFromSharedPreferences(Context context) {
         if (context == null) {
             return "";
         }
-        SharedPreferences preferences = context.getSharedPreferences("mixpush", Context.MODE_PRIVATE);
-        String uuid = preferences.getString("MixPushClientId", "");
-        return uuid;
-    }
-
-    // A helper method to shift a single character by a given offset
-    private static char shift(char c, int offset) {
-        // If c is not a letter, return it unchanged
-        if (!Character.isLetter(c)) return c;
-        // Convert c to uppercase and get its ASCII code
-        int code = (int) Character.toUpperCase(c);
-        // Shift the code by the offset and wrap around if necessary
-        code = (code + offset - 65) % 26 + 65;
-        // Convert the code back to a character and return it
-        return (char) code;
-    }
-
-    // A method to encrypt a message using a variant Caesar cipher
-    private static String encrypt(String message, int[] offsets) {
-        // Initialize an empty string for the ciphertext
-        String ciphertext = "";
-        // Loop through each character in the message
-        for (int i = 0; i < message.length(); i++) {
-            // Get the corresponding offset from the offsets array
-            int offset = offsets[i % offsets.length];
-            // Shift the character by the offset and append it to the ciphertext
-            ciphertext += shift(message.charAt(i), offset);
-        }
-        // Return the ciphertext
-        return ciphertext;
-    }
-
-    // A method to decrypt a message using a variant Caesar cipher
-    private static String decrypt(String ciphertext, int[] offsets) {
-        // Initialize an empty string for the plaintext
-        String plaintext = "";
-        // Loop through each character in the ciphertext
-        for (int i = 0; i < ciphertext.length(); i++) {
-            // Get the corresponding offset from the offsets array
-            int offset = offsets[i % offsets.length];
-            // Shift the character by the negative offset and append it to the plaintext
-            plaintext += shift(ciphertext.charAt(i), -offset);
-        }
-        // Return the plaintext
-        return plaintext;
+        SharedPreferences preferences = context.getSharedPreferences(this.mAppId, Context.MODE_PRIVATE);
+        return preferences.getString(editKey, "");
     }
 }
