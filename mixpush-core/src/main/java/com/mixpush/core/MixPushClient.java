@@ -83,6 +83,8 @@ public class MixPushClient {
         addPlatformProviderByClassName("com.mixpush.huawei.HuaweiPushProvider");
         addPlatformProviderByClassName("com.mixpush.oppo.OppoPushProvider");
         addPlatformProviderByClassName("com.mixpush.vivo.VivoPushProvider");
+        addPlatformProviderByClassName("com.mixpush.honor.HonorPushProvider");
+        addPlatformProviderByClassName("com.mixpush.mqtt.MqttPushProvider");
 
         BaseMixPushProvider pushProvider = null;
         // 获取厂商推送

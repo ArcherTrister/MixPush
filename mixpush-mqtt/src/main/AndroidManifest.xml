@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.mixpush.mqtt">
+    <!-- META MQTT -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application>
+        <service
+            android:name="com.mixpush.mqtt.UnifiedMqttMessageService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.mixpush.mqtt.push.action.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="MQTT_SERVER_URL"
+            android:value="UNIFIEDPUSH-${MQTT_SERVER_URL}" />
+        <meta-data
+            android:name="MQTT_APP_ID"
+            android:value="UNIFIEDPUSH-${MQTT_APP_ID}" />
+        <meta-data
+            android:name="MQTT_APP_KEY"
+            android:value="UNIFIEDPUSH-${MQTT_APP_KEY}" />
+    </application>
+</manifest>

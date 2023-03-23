@@ -9,6 +9,7 @@ include ':mixpush-core'
 //include ':mixpush-server'
 //include ':mixpush-fcm'
 include ':mixpush-honor'
+include ':mixpush-mqtt'
 
 include ':mixpush-sender'
 

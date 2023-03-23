@@ -2,6 +2,7 @@ package com.mixpush.mi;
 
 import android.content.Context;
 
+import android.os.Build;
 import com.mixpush.core.BaseMixPushProvider;
 import com.mixpush.core.RegisterType;
 import com.mixpush.core.MixPushClient;
@@ -54,7 +55,19 @@ public class MiPushProvider extends BaseMixPushProvider {
 
     @Override
     public boolean isSupport(Context context) {
-        return true;
+        String manufacturer = Build.MANUFACTURER;
+        String brand = Build.BRAND;
+        if (manufacturer.equalsIgnoreCase("Xiaomi") || brand.equalsIgnoreCase("Xiaomi")) {
+            // This is a Xiaomi phone
+            return true;
+        }
+//        PackageManager pm = getPackageManager();
+//        boolean isXiaomi = pm.hasSystemFeature("com.xiaomi.feature.HONGMI") || pm.hasSystemFeature("com.xiaomi.feature.MIUI");
+//        if (isXiaomi) {
+//            // This is a Xiaomi phone
+//            return true;
+//        }
+        return false;
     }
 
 //    @Override

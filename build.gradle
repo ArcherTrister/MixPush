@@ -38,6 +38,14 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = "utf-8"
+}
+tasks.withType(Javadoc) {
+    options.encoding = "utf-8"
+}
+
+
 //subprojects {
 //    apply plugin: 'maven'
 //    uploadArchives {
