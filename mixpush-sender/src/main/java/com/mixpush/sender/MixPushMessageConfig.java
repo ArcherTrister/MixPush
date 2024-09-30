@@ -7,6 +7,7 @@ public class MixPushMessageConfig {
     private String miPushChannelId;
     private String oppoPushChannelId;
     private String huaweiPushChannelId;
+    private String huaweiCategory;//华为消息分类，如果不分类推送条数有限制，并且没声音+震动
     // 声音,震动,渠道,icon,retries,时效,重试次数,定时,回执
 
     public String getChannelId() {
@@ -30,7 +31,15 @@ public class MixPushMessageConfig {
     }
 
     public String getHuaweiPushChannelId() {
-        return huaweiPushChannelId;
+      return huaweiPushChannelId;
+    }
+    
+    public String getHuaweiCategory() {
+        return huaweiCategory;
+    }
+
+    public void setHuaweiCategory(String huaweiCategory) {
+        this.huaweiCategory = huaweiCategory;
     }
 
     public static class Builder {
@@ -65,10 +74,15 @@ public class MixPushMessageConfig {
             config.oppoPushChannelId = oppoPushChannelId;
             return this;
         }
+
         public Builder huaweiPushChannelId(String huaweiPushChannelId) {
             config.huaweiPushChannelId = huaweiPushChannelId;
             return this;
         }
-
+        
+        public Builder huaweiCategory(String huaweiCategory) {
+            config.huaweiCategory = huaweiCategory;
+            return this;
+        }
     }
 }

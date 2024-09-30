@@ -29,11 +29,14 @@ public class MixPushServerTest2 {
     MixPushMessageConfig activitiesMessageConfig = new MixPushMessageConfig.Builder()
             // OPPO 必须在“通道配置 → 新建通道”模块中登记通道，再在发送消息时选择
             .oppoPushChannelId("activities")
+            .huaweiPushChannelId(huaweiChannelId)
+            .huaweiCategory(huaweiCategory)//华为分类
             // 推广/运营活动等推广必须设置成false
-            .vivoSystemMessage(true)
+            .vivoSystemMessage(true)//vivo消息类型 0：运营类消息，1：系统类消息  运营消息单个用户一天只能发送5条，系统消息没有限制
             // 小于72小时,单位毫秒
             .timeToLive(72 * 3600000)
             .build();
+
     MixPushMessageConfig imMessageConfig = new MixPushMessageConfig.Builder()
             // TODO mixpush初始化的时候创建
             .channelId("im")

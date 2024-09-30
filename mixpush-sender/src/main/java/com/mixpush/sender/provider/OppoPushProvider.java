@@ -40,7 +40,26 @@ public class OppoPushProvider extends MixPushProvider {
 
     @Override
     protected MixPushResult sendMessageToSingle(MixPushMessage mixPushMessage, String regId) {
-        return sendMessageToList(mixPushMessage, Collections.singletonList(regId));
+        // return sendMessageToList(mixPushMessage, Collections.singletonList(regId));
+        Notification notification = toMessage(mixPushMessage);
+        try {
+            if (mixPushMessage.getConfig().getOppoPushChannelId() == null) {
+                throw new Exception("必须在“通道配置 → 新建通道”模块中登记 channelId，再在发送消息时选择通道发送 https://open.oppomobile.com/wiki/doc#id=10289");
+            }
+            if (mixPushMessage.getOppoTaskId() == null) {
+                Result result = sender.saveNotification(notification);
+                if (result.getMessageId() == null) {
+                    return toMixPushResult(mixPushMessage, result);
+                }
+                mixPushMessage.setOppoTaskId(result.getMessageId());
+            }
+            List<MixPushResult> results = new ArrayList<>();
+            Result tmp = sender.unicastNotification(notification, Target.build(regId));//私信必须要要用单推，如果用广播每个人会限制5条消息
+            results.add(toMixPushResult(mixPushMessage,tmp));
+            return MixPushResult.build(results);
+        } catch (Exception e) {
+            return new MixPushResult.Builder().provider(this).message(mixPushMessage).error(e).build();
+        }
     }
 
     @Override
