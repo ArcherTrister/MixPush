@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.huawei.agconnect'
+apply plugin: 'com.hihonor.mcs.asplugin'
 
 android {
     compileSdkVersion 31
@@ -20,6 +21,7 @@ android {
         manifestPlaceholders["OPPO_APP_SECRET"] = EXAMPLE_OPPO_APP_SECRET
         manifestPlaceholders["MEIZU_APP_ID"] = EXAMPLE_MEIZU_APP_ID
         manifestPlaceholders["MEIZU_APP_KEY"] = EXAMPLE_MEIZU_APP_KEY
+        manifestPlaceholders["HONOR_APP_ID"] = EXAMPLE_HONOR_APP_ID
     }
     signingConfigs {
         release {
@@ -60,4 +62,5 @@ dependencies {
     implementation project(path: ':mixpush-vivo')
     implementation project(path: ':mixpush-huawei')
     implementation project(path: ':mixpush-mi')
+    implementation project(path: ':mixpush-honor')
 }

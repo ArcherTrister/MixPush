@@ -17,6 +17,7 @@ public class MixPushServerTest2 {
             .oppo("", "")
             .vivo("", "", "")
             .miAPNs("")
+            .honor("", "")
             // 默认开启,如果开启拦截测试数据,测试数据的消息推送发送给超过10人,
             // 就算是测试数据也建议使用正式一点的文案,比如"欢迎使用XXX",避免真的一不小心发送了
             .interceptTestData(true)
@@ -34,6 +35,7 @@ public class MixPushServerTest2 {
             // 小于72小时,单位毫秒
             .timeToLive(72 * 3600000)
             .build();
+            
     MixPushMessageConfig imMessageConfig = new MixPushMessageConfig.Builder()
             // TODO mixpush初始化的时候创建
             .channelId("im")

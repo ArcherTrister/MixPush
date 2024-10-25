@@ -9,11 +9,16 @@ buildscript {
             allowInsecureProtocol true
             url 'http://developer.huawei.com/repo/'
         }
+        maven {
+            allowInsecureProtocol = true
+            url 'http://developer.hihonor.com/repo/'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.huawei.agconnect:agcp:1.6.0.300'
+        classpath 'com.hihonor.mcs:asplugin:2.0.1.300'
     }
 }
 
@@ -24,6 +29,10 @@ allprojects {
         maven {
             allowInsecureProtocol = true
             url 'http://developer.huawei.com/repo/'
+        }
+        maven {
+            allowInsecureProtocol = true
+            url 'http://developer.hihonor.com/repo/'
         }
     }
 }

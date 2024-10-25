@@ -6,6 +6,7 @@ import com.mixpush.sender.provider.MiAPNsPushProvider;
 import com.mixpush.sender.provider.MiPushProvider;
 import com.mixpush.sender.provider.OppoPushProvider;
 import com.mixpush.sender.provider.VivoPushProvider;
+import com.mixpush.sender.provider.HonorPushProvider;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class MixPushSender {
     private String vivoAppId;
     private String vivoAppKey;
     private String vivoAppSecret;
+    private String honorAppId;
+    private String honorAppSecret;
 
     private boolean usePassThrough = false;
     private boolean interceptTestData = true;
@@ -70,7 +73,10 @@ public class MixPushSender {
             addProvider(new OppoPushProvider(oppoAppKey, oppoMasterSecret));
         }
         if (vivoAppId != null) {
-            addProvider(new VivoPushProvider(vivoAppId, vivoAppKey, vivoAppSecret, test));
+          addProvider(new VivoPushProvider(vivoAppId, vivoAppKey, vivoAppSecret, test));
+        }
+        if (honorAppId != null) {
+            addProvider(new HonorPushProvider(honorAppId, honorAppSecret));
         }
 //        if (apnsCertificate != null) {
 //            addProvider(new ApnsPushProvider(apnsCertificate, apnsPassword));
@@ -242,8 +248,14 @@ public class MixPushSender {
         }
 
         public Builder meizu(String appId, String appSecretKey) {
-            sender.meizuAppId = appId;
-            sender.meizuAppSecretKey = appSecretKey;
+          sender.meizuAppId = appId;
+          sender.meizuAppSecretKey = appSecretKey;
+          return this;
+        }
+        
+        public Builder honor(String appId, String appSecret) {
+            sender.honorAppId = appId;
+            sender.honorAppSecret = appSecret;
             return this;
         }
 
