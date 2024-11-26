@@ -17,6 +17,7 @@ class MyMixPushReceiver : MixPushReceiver() {
     }
 
     override fun onNotificationMessageClicked(context: Context, message: MixPushMessage) {
+        Log.e("onNotificationMessageClicked", "$message")
         var intent: Intent? = null
         if (message.payload == null) {
             // 启动APP

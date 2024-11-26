@@ -1,0 +1,68 @@
+name: Build Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag Name"
+        required: true
+      # prerelease:
+      #   description: "Pre-release?"
+      #   required: true
+      branchName:
+        description: "Branch Name"
+        required: true
+      apkVersion:
+        description: "APK Version"
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branchName }}
+      - name: Create Release
+        id: create_release
+        uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+        with:
+          tag: ${{ github.event.inputs.tag_name }}
+          name: ${{ github.event.inputs.tag_name }}
+          publish: true
+          # ${{ github.event.inputs.prerelease }}
+          prerelease: false
+      - name: Set Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Gradle Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.7.1
+          arguments: assembleRelease
+      - name: Sign App
+        id: sign_app
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: example/build/outputs/apk/release
+          # openssl base64 < some_signing_key.jks | tr -d '\n' | tee some_signing_key.jks.base64.txt
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+      - run: mv ${{steps.sign_app.outputs.signedReleaseFile}} MixPushExample_${{ github.event.inputs.apkVersion }}.apk
+      - name: Upload APK
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*.apk"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true

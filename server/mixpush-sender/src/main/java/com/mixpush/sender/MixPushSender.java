@@ -39,6 +39,8 @@ public class MixPushSender {
     private String vivoAppId;
     private String vivoAppKey;
     private String vivoAppSecret;
+    private String mqttAppId;
+    private String mqttAppSecret;
 
     private boolean usePassThrough = false;
     private boolean interceptTestData = true;
@@ -71,6 +73,9 @@ public class MixPushSender {
         }
         if (vivoAppId != null) {
             addProvider(new VivoPushProvider(vivoAppId, vivoAppKey, vivoAppSecret, test));
+        }
+        if (mqttAppId != null) {
+            addProvider(new MqttPushProvider(mqttAppId, mqttAppSecret));
         }
 //        if (apnsCertificate != null) {
 //            addProvider(new ApnsPushProvider(apnsCertificate, apnsPassword));

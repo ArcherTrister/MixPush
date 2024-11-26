@@ -20,13 +20,18 @@ android {
         manifestPlaceholders["OPPO_APP_SECRET"] = EXAMPLE_OPPO_APP_SECRET
         manifestPlaceholders["MEIZU_APP_ID"] = EXAMPLE_MEIZU_APP_ID
         manifestPlaceholders["MEIZU_APP_KEY"] = EXAMPLE_MEIZU_APP_KEY
+        manifestPlaceholders["MQTT_SERVER_URL"] = EXAMPLE_MQTT_SERVER_URL
+        manifestPlaceholders["MQTT_APP_ID"] = EXAMPLE_MQTT_APP_ID
+        manifestPlaceholders["MQTT_APP_KEY"] = EXAMPLE_MQTT_APP_KEY
     }
     signingConfigs {
         release {
-            keyAlias ''
-            keyPassword ""
-            storePassword ""
-            storeFile file('.jks')
+            keyAlias 'release'
+            keyPassword "123456"
+            storePassword "123456"
+            storeFile file('release.jks')
+            v1SigningEnabled true
+            v2SigningEnabled true
         }
     }
     buildTypes {
@@ -41,6 +46,9 @@ android {
             zipAlignEnabled false
             debuggable = true
         }
+    }
+    lintOptions {
+        disable 'LongLogTag'
     }
 }
 
@@ -60,4 +68,5 @@ dependencies {
     implementation project(path: ':mixpush-vivo')
     implementation project(path: ':mixpush-huawei')
     implementation project(path: ':mixpush-mi')
+    implementation project(path: ':mixpush-mqtt')
 }

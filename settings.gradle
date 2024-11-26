@@ -8,6 +8,7 @@ include ':mixpush-huawei'
 include ':mixpush-core'
 //include ':mixpush-server'
 //include ':mixpush-fcm'
+include ':mixpush-mqtt'
 
 
 include ':mixpush-sender'
@@ -24,5 +25,6 @@ project(":mixpush-oppo").projectDir = new File("client/mixpush-oppo")
 project(":mixpush-vivo").projectDir = new File("client/mixpush-vivo")
 project(":mixpush-huawei").projectDir = new File("client/mixpush-huawei")
 project(":mixpush-core").projectDir = new File("client/mixpush-core")
+project(":mixpush-mqtt").projectDir = new File("client/mixpush-mqtt")
 
 project(":mixpush-sender").projectDir = new File("client/mixpush-sender")
